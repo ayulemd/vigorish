@@ -5,11 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net/http"
 )
 
-func (app *application) readJSON(res *http.Response, dst any) error {
-	err := json.NewDecoder(res.Body).Decode(dst)
+func (app *application) readJSON(r io.Reader, dst any) error {
+	err := json.NewDecoder(r).Decode(dst)
 	if err != nil {
 		var syntaxError *json.SyntaxError
 		var unmarshalTypeError *json.UnmarshalTypeError
