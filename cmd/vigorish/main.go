@@ -44,5 +44,9 @@ func main() {
 		"oddsFormat": "american",
 	}
 
-	app.getWithQuery(baseURL, params)
+	err = app.getWithQuery(baseURL, params)
+	if err != nil {
+		fmt.Println("Error:", err)
+		os.Exit(1)
+	}
 }

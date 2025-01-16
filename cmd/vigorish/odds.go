@@ -39,7 +39,10 @@ func (app *application) getWithQuery(baseURL string, params map[string]string) e
 		return fmt.Errorf("unexpected status code: %d", res.StatusCode)
 	}
 
-	app.readJSON(res, &odds)
+	err = app.readJSON(res, &odds)
+	if err != nil {
+		return err
+	}
 
 	pretty, err := json.MarshalIndent(odds, "", "  ")
 	if err != nil {
