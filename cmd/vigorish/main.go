@@ -33,8 +33,6 @@ func main() {
 		client: &http.Client{},
 	}
 
-	fmt.Println("Calling API")
-
 	baseURL := "https://api.the-odds-api.com/v4/sports/americanfootball_nfl/odds"
 
 	params := map[string]string{
@@ -44,9 +42,11 @@ func main() {
 		"oddsFormat": "american",
 	}
 
-	err = app.getWithQuery(baseURL, params)
+	oddsData, err := app.getOdds(baseURL, params)
 	if err != nil {
 		fmt.Println("Error:", err)
 		os.Exit(1)
 	}
+
+	app.calculateVig(oddsData)
 }
