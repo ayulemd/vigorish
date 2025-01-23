@@ -50,6 +50,7 @@ func (app *application) getOdds(baseURL string, params map[string]string) ([]dat
 func (app *application) calculateVig(oddsData []data.Odds) error {
 	for _, match := range oddsData {
 		fmt.Println(match.AwayTeam, "at", match.HomeTeam)
+		fmt.Println("============================================")
 
 		for _, bookmaker := range match.Bookmakers {
 			fmt.Println("Bookmaker:", bookmaker.Title)
@@ -67,6 +68,7 @@ func (app *application) calculateVig(oddsData []data.Odds) error {
 				}
 
 				fmt.Println("The Vigorish:", vig)
+				fmt.Println("============================================")
 			}
 		}
 	}
