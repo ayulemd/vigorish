@@ -6,7 +6,7 @@ import (
 
 type Outcome struct {
 	Name  string `json:"name"`
-	Price int    `json:"price"`
+	Price int64  `json:"price"`
 }
 
 type Market struct {
