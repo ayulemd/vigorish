@@ -1,20 +1,20 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
 
 	"github.com/ayulemd/vigorish/internal/data"
+	"github.com/shopspring/decimal"
 )
 
-var odds []data.Odds
+func (app *application) getOdds(baseURL string, params map[string]string) ([]data.Odds, error) {
+	var oddsData []data.Odds
 
-func (app *application) getWithQuery(baseURL string, params map[string]string) error {
 	parsedURL, err := url.Parse(baseURL)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	query := parsedURL.Query()
@@ -25,31 +25,51 @@ func (app *application) getWithQuery(baseURL string, params map[string]string) e
 
 	req, err := http.NewRequest(http.MethodGet, parsedURL.String(), nil)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	req.Header.Set("Accept", "application/json")
 
 	res, err := app.client.Do(req)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected status code: %d", res.StatusCode)
+		return nil, fmt.Errorf("unexpected status code: %d", res.StatusCode)
 	}
 
-	err = app.readJSON(res.Body, &odds)
+	err = app.readJSON(res.Body, &oddsData)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	pretty, err := json.MarshalIndent(odds, "", "  ")
-	if err != nil {
-		return err
-	}
+	return oddsData, nil
+}
 
-	fmt.Println(string(pretty))
+func (app *application) calculateVig(oddsData []data.Odds) error {
+	for _, match := range oddsData {
+		fmt.Println(match.AwayTeam, "at", match.HomeTeam)
+
+		for _, bookmaker := range match.Bookmakers {
+			fmt.Println("Bookmaker:", bookmaker.Title)
+			fmt.Println("Last Update:", bookmaker.LastUpdate)
+
+			for _, market := range bookmaker.Markets {
+				var vig decimal.Decimal
+
+				for _, outcome := range market.Outcomes {
+					fmt.Println("Name:", outcome.Name)
+					fmt.Println("Price:", outcome.Price)
+					impliedProbability := app.impliedProbability(outcome.Price)
+					fmt.Println("Implied Win Probability:", impliedProbability)
+					vig = vig.Add(impliedProbability)
+				}
+
+				fmt.Println("The Vigorish:", vig)
+			}
+		}
+	}
 
 	return nil
 }
