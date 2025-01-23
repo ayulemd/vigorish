@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
+
+	"github.com/shopspring/decimal"
 )
 
 func (app *application) readJSON(r io.Reader, dst any) error {
@@ -33,4 +35,18 @@ func (app *application) readJSON(r io.Reader, dst any) error {
 		}
 	}
 	return nil
+}
+
+func (app *application) impliedProbability(price int64) decimal.Decimal {
+	var impliedProbability decimal.Decimal
+	decimalPrice := decimal.NewFromInt(price)
+
+	if decimalPrice.LessThan(decimal.NewFromInt(0)) {
+		decimalPrice = decimalPrice.Mul(decimal.NewFromInt(-1))
+		impliedProbability = decimalPrice.Div(decimalPrice.Add(decimal.NewFromInt(100)))
+	} else {
+		impliedProbability = decimal.NewFromInt(100).Div(decimalPrice.Add(decimal.NewFromInt(100)))
+	}
+
+	return impliedProbability
 }
