@@ -63,11 +63,12 @@ func (app *application) calculateVig(oddsData []data.Odds) error {
 					fmt.Println("Name:", outcome.Name)
 					fmt.Println("Price:", outcome.Price)
 					impliedProbability := app.impliedProbability(outcome.Price)
-					fmt.Println("Implied Win Probability:", impliedProbability)
+					fmt.Printf("Implied Win Probability: %s%%\n", impliedProbability.StringFixed(2))
 					vig = vig.Add(impliedProbability)
 				}
 
-				fmt.Println("The Vigorish:", vig)
+				vig = vig.Sub(decimal.NewFromInt(100))
+				fmt.Printf("The Vigorish: %s%%\n", vig.StringFixed(2))
 				fmt.Println("============================================")
 			}
 		}
