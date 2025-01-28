@@ -42,11 +42,13 @@ func (app *application) impliedProbability(price int64) decimal.Decimal {
 	decimalPrice := decimal.NewFromInt(price)
 
 	if decimalPrice.LessThan(decimal.NewFromInt(0)) {
-		decimalPrice = decimalPrice.Mul(decimal.NewFromInt(-1))
-		impliedProbability = decimalPrice.Div(decimalPrice.Add(decimal.NewFromInt(100)))
+		decimalPrice = decimalPrice.Abs()
+		impliedProbability = decimalPrice.Div(decimalPrice.Add(decimal.NewFromInt(100))).Round(4)
 	} else {
-		impliedProbability = decimal.NewFromInt(100).Div(decimalPrice.Add(decimal.NewFromInt(100)))
+		impliedProbability = decimal.NewFromInt(100).Div(decimalPrice.Add(decimal.NewFromInt(100))).Round(4)
 	}
+
+	impliedProbability = impliedProbability.Mul(decimal.NewFromInt(100))
 
 	return impliedProbability
 }
