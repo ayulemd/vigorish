@@ -48,5 +48,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	app.calculateVig(oddsData)
+	app.displayOdds(oddsData)
+	if err != nil {
+		fmt.Print("Error:", err)
+		os.Exit(1)
+	}
 }
