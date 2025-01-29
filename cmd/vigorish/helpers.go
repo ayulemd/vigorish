@@ -37,7 +37,7 @@ func (app *application) readJSON(r io.Reader, dst any) error {
 	return nil
 }
 
-func (app *application) impliedProbability(price int64) decimal.Decimal {
+func (app *application) calculateImpliedProbability(price int64) decimal.Decimal {
 	var impliedProbability decimal.Decimal
 	decimalPrice := decimal.NewFromInt(price)
 
@@ -51,4 +51,16 @@ func (app *application) impliedProbability(price int64) decimal.Decimal {
 	impliedProbability = impliedProbability.Mul(decimal.NewFromInt(100))
 
 	return impliedProbability
+}
+
+func (app *application) calculateVigorish(impliedProbabilities []decimal.Decimal) decimal.Decimal {
+	var vig decimal.Decimal
+
+	for _, impliedProbability := range impliedProbabilities {
+		vig = vig.Add(impliedProbability)
+	}
+
+	vig = vig.Sub(decimal.NewFromInt(100)).Round(4)
+
+	return vig
 }
