@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/http"
+	"net/url"
 
 	"github.com/shopspring/decimal"
 )
@@ -35,6 +37,36 @@ func (app *application) readJSON(r io.Reader, dst any) error {
 		}
 	}
 	return nil
+}
+
+func (app *application) makeApiRequest(baseURL string, params map[string]string) (*http.Response, error) {
+	parsedURL, err := url.Parse(baseURL)
+	if err != nil {
+		return nil, err
+	}
+
+	query := parsedURL.Query()
+	for key, value := range params {
+		query.Set(key, value)
+	}
+	parsedURL.RawQuery = query.Encode()
+
+	req, err := http.NewRequest(http.MethodGet, parsedURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Accept", "application/json")
+
+	res, err := app.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d", res.StatusCode)
+	}
+
+	return res, nil
 }
 
 func (app *application) calculateImpliedProbability(price int64) decimal.Decimal {

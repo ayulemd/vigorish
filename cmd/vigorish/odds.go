@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"net/http"
-	"net/url"
 
 	"github.com/ayulemd/vigorish/internal/data"
 	"github.com/shopspring/decimal"
@@ -12,32 +10,11 @@ import (
 func (app *application) getOdds(baseURL string, params map[string]string) ([]data.Odds, error) {
 	var oddsData []data.Odds
 
-	parsedURL, err := url.Parse(baseURL)
-	if err != nil {
-		return nil, err
-	}
-
-	query := parsedURL.Query()
-	for key, value := range params {
-		query.Set(key, value)
-	}
-	parsedURL.RawQuery = query.Encode()
-
-	req, err := http.NewRequest(http.MethodGet, parsedURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Accept", "application/json")
-
-	res, err := app.client.Do(req)
+	res, err := app.makeApiRequest(baseURL, params)
 	if err != nil {
 		return nil, err
 	}
 	defer res.Body.Close()
-
-	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", res.StatusCode)
-	}
 
 	err = app.readJSON(res.Body, &oddsData)
 	if err != nil {
