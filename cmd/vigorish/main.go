@@ -33,14 +33,29 @@ func main() {
 		client: &http.Client{},
 	}
 
-	baseURL := "https://api.the-odds-api.com/v4/sports/americanfootball_nfl/odds"
+	baseURL := "https://api.the-odds-api.com/v4/sports"
 
 	params := map[string]string{
 		"apiKey":     app.config.apiKey,
 		"regions":    "us",
-		"markets":    "h2h",
 		"oddsFormat": "american",
 	}
+
+	sports, err := app.getSports(baseURL, params)
+	if err != nil {
+		fmt.Println("Error:", err)
+		os.Exit(1)
+	}
+
+	app.displaySports(sports)
+
+	key, err := app.selectSport(sports)
+	if err != nil {
+		fmt.Println("Error:", err)
+		os.Exit(1)
+	}
+
+	baseURL = fmt.Sprintf("https://api.the-odds-api.com/v4/sports/%s/odds", key)
 
 	oddsData, err := app.getOdds(baseURL, params)
 	if err != nil {
